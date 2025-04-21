@@ -25,12 +25,14 @@ const GameBoard = () => {
         difficulty === 'medium' ? 'grid-cols-6' :
             'grid-cols-8';
     const isFirstPlayer = currentPlayer === 1;
-
-    const { data, isLoading, isError } = useQuery({
+    
+    const { data } = useQuery({
         queryKey: ['images', count],
         queryFn: fetchImages,
-        staleTime: Infinity,
-    })
+        keepPreviousData: true,
+        refetchOnWindowFocus: false,
+        enabled: !!(count && !cards.length),
+    });
 
     useEffect(() => {
         if (data) {
@@ -89,7 +91,7 @@ const GameBoard = () => {
                     <p className="text-white mt-2 text-sm min-h-[4.5rem] text-center leading-relaxed">
                         Attempts: {player1.attempts} <br />
                         Score: {player1.score} <br />
-                        Time: {formatDuration(player1.time)}
+                        Time: {formatDuration(player1.elapsedTime)}
                     </p>
                 </div>
 
@@ -104,7 +106,7 @@ const GameBoard = () => {
                     <p className="text-white mt-2 text-sm min-h-[4.5rem] text-center leading-relaxed">
                         Attempts: {player2.attempts} <br />
                         Score: {player2.score} <br />
-                        Time: {formatDuration(player2.time)}
+                        Time: {formatDuration(player2.elapsedTime)}
                     </p>
                 </div>
             </div>

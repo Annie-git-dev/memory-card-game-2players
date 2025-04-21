@@ -1,10 +1,20 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from 'zustand/middleware'
 
-export const useCardStore = create((set) => ({
-    cards: [],
-    setCards: (cards) => set(() => ({ cards })),
-    flippedCards: [],
-    setFlippedCards: (flippedCards) => set(() => ({ flippedCards })),
-    matchedCards: [],
-    setMatchedCards: (matchedCards) => set(() => ({ matchedCards })),
-}))
+export const useCardStore = create(
+    persist(
+        (set) => ({
+            cards: [],
+            setCards: (cards) => set(() => ({ cards })),
+            flippedCards: [],
+            setFlippedCards: (flippedCards) => set(() => ({ flippedCards })),
+            matchedCards: [],
+            setMatchedCards: (matchedCards) => set(() => ({ matchedCards })),
+            resetCardState: () => set({ cards: [], flippedCards: [], matchedCards: [] }),
+        }),
+        {
+            name: 'card-storage',
+            storage: createJSONStorage(() => sessionStorage),
+        },
+    ),
+)
