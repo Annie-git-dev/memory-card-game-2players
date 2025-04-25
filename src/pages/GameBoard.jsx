@@ -25,7 +25,7 @@ const GameBoard = () => {
         difficulty === 'medium' ? 'grid-cols-6' :
             'grid-cols-8';
     const isFirstPlayer = currentPlayer === 1;
-    
+
     const { data } = useQuery({
         queryKey: ['images', count],
         queryFn: fetchImages,
@@ -62,7 +62,7 @@ const GameBoard = () => {
 
             return () => clearTimeout(timeout);
         }
-    }, []);
+    }, [currentPlayer, navigate, resetGame]);
 
     const shuffle = (array) => {
         return array.sort(() => Math.random() - 0.5);

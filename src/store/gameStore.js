@@ -27,20 +27,18 @@ export const useGameStore = create(
       gameStarted: false,
       duration: 0,
       gameOver: false,
-      setPlayer1: (player) => set((state) => ({
-        player1: {
-          ...state.player1,
-          ...player,
-          name: player.name?.trimStart() ?? state.player1.name
-        }
-      })),
-      setPlayer2: (player) => set((state) => ({
-        player2: {
-          ...state.player2,
-          ...player,
-          name: player.name?.trimStart() ?? state.player1.name
-        }
-      })),
+      updatePlayer: (playerIndex, player) => set((state) => {
+        const playerKey = playerIndex === 1 ? 'player1' : 'player2';
+        return {
+          [playerKey]: {
+            ...state[playerKey],
+            ...player,
+            name: player.name?.trimStart() ?? state[playerKey].name
+          }
+        };
+      }),
+      setPlayer1: (player) => get().updatePlayer(1, player),
+      setPlayer2: (player) => get().updatePlayer(2, player),
       setDifficulty: (dif) => set({ difficulty: dif }),
       setCurrentPlayer: (index) => set({ currentPlayer: index }),
       startGame: () => set({ gameStarted: true }),
