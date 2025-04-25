@@ -21,7 +21,7 @@ export default function StartScreen() {
         const newErrors = { error: '' };
 
         if (name1.length < 3 || name2.length < 3) {
-            newErrors.error = 'Player name must be at most 10 characters';
+            newErrors.error = 'Player name must be at least 3 characters';
         }
 
         if (name1.length > 10 || name2.length > 10) {
