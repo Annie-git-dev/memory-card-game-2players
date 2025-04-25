@@ -8,12 +8,10 @@ const WinnerModal = () => {
     const player2 = useGameStore((state) => state.player2);
 
     const navigate = useNavigate();
-    
+
     const handleResetGame = () => {
         resetGame();
-        setTimeout(() => {
-            navigate('/');
-        }, 1000);
+        navigate("/");
     }
 
     return (

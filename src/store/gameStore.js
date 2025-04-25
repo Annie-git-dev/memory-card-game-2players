@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import { useCardStore } from './cardStore'
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { useCardStore } from './cardStore';
 
 export const useGameStore = create(
   persist(
@@ -12,6 +12,7 @@ export const useGameStore = create(
         startTime: 0,
         elapsedTime: 0,
         isRunning: false,
+        intervalId: null,
       },
       player2: {
         name: 'Player 2',
@@ -20,8 +21,8 @@ export const useGameStore = create(
         startTime: 0,
         elapsedTime: 0,
         isRunning: false,
+        intervalId: null,
       },
-      animationFrameId: null,
       currentPlayer: null,
       difficulty: 'easy',
       gameStarted: false,
@@ -44,15 +45,17 @@ export const useGameStore = create(
       startGame: () => set({ gameStarted: true }),
       resetGame: () => {
         set({
-          player1: { name: 'Player 1', score: 0, attempts: 0, startTime: 0, elapsedTime: 0, isRunning: false },
-          player2: { name: 'Player 2', score: 0, attempts: 0, startTime: 0, elapsedTime: 0, isRunning: false },
+          player1: { name: 'Player 1', score: 0, attempts: 0, startTime: 0, elapsedTime: 0, isRunning: false, intervalId: null },
+          player2: { name: 'Player 2', score: 0, attempts: 0, startTime: 0, elapsedTime: 0, isRunning: false, intervalId: null },
           currentPlayer: null,
           duration: 0,
           difficulty: 'easy',
           gameStarted: false,
-          animationFrameId: null,
         }),
-          useCardStore.getState().resetCardState()
+          useCardStore.getState().resetCardState();
+
+        clearInterval(get().player1.intervalId);
+        clearInterval(get().player2.intervalId);
       },
       incrementScore: (playerIndex) => set((state) => {
         const playerKey = playerIndex === 1 ? 'player1' : 'player2';
@@ -65,9 +68,7 @@ export const useGameStore = create(
         return { [playerKey]: updatedPlayer };
       }),
       startTimer: (playerIndex) => {
-        const { animationFrameId } = get();
         const playerKey = playerIndex === 1 ? 'player1' : 'player2';
-
         if (!get()[playerKey].isRunning) {
           set((state) => ({
             [playerKey]: {
@@ -76,31 +77,35 @@ export const useGameStore = create(
               startTime: state[playerKey].startTime === 0 ? Date.now() : state[playerKey].startTime,
             },
           }));
-
-          const tick = () => {
+          const intervalId = setInterval(() => {
             set((state) => {
               const currentPlayerIndex = get().currentPlayer;
               const currentPlayerKey = currentPlayerIndex === 1 ? 'player1' : 'player2';
-
               if (state[currentPlayerKey]?.isRunning) {
                 const currentTime = Date.now();
                 const elapsedTime = currentTime - state[currentPlayerKey].startTime;
                 return {
-                  [currentPlayerKey]: { ...state[currentPlayerKey], elapsedTime: Math.floor(elapsedTime / 1000) }
+                  [currentPlayerKey]: { ...state[currentPlayerKey], elapsedTime: Math.floor(elapsedTime / 1000) },
                 };
               }
               return {};
             });
-            get().animationFrameId = requestAnimationFrame(tick);
-          };
+          }, 1000);
 
-          get().animationFrameId = requestAnimationFrame(tick);
+          set((state) => ({
+            [playerKey]: { ...state[playerKey], intervalId: intervalId },
+          }));
         }
       },
       stopTimer: (playerIndex) => {
         const playerKey = playerIndex === 1 ? 'player1' : 'player2';
         set((state) => ({
           [playerKey]: { ...state[playerKey], isRunning: false },
+        }));
+
+        clearInterval(get()[playerKey].intervalId);
+        set((state) => ({
+          [playerKey]: { ...state[playerKey], intervalId: null },
         }));
       },
       setGameOver: (value) => set({ gameOver: value })
@@ -129,4 +134,4 @@ export const useGameStore = create(
       }),
     },
   ),
-)
+);
